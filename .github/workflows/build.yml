@@ -8,6 +8,10 @@ on:
       - "v*"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -38,3 +42,99 @@ jobs:
         with:
           name: cabinet-darwin-x64
           path: dist/cabinet-darwin-x64
+
+  release-draft:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build-linux
+      - build-darwin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cabinet-linux-x64
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: cabinet-darwin-x64
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            dist/cabinet-linux-x64
+            dist/cabinet-darwin-x64
+
+  release-latest:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build-linux
+      - build-darwin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cabinet-linux-x64
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: cabinet-darwin-x64
+          path: dist
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const ref = "tags/latest";
+            const sha = context.sha;
+            try {
+              await github.rest.git.updateRef({
+                owner,
+                repo,
+                ref,
+                sha,
+                force: true
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.git.createRef({
+                owner,
+                repo,
+                ref: "refs/tags/latest",
+                sha
+              });
+            }
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: latest
+          draft: false
+          files: |
+            dist/cabinet-linux-x64
+            dist/cabinet-darwin-x64
+
+  docker-publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN }}
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ github.ref_name }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
