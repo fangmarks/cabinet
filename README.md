@@ -1,4 +1,4 @@
-# cabinet
+# 🗄️ cabinet
 
 A simple static file server built with Bun and `serve-handler`.
 
