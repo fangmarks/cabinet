@@ -54,6 +54,7 @@ bun run dev
 
 ```sh
 bun run build:darwin-x64
+bun run build:darwin-x64-baseline
 bun run build:linux-x64
 bun run build:all
 ```
