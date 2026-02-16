@@ -132,6 +132,10 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=${{ github.ref_name }}
+          labels: |
+            org.opencontainers.image.title=cabinet
+            org.opencontainers.image.description=Simple static file server built with Bun and serve-handler
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
       - uses: docker/build-push-action@v6
         with:
           context: .
