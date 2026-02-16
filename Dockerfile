@@ -8,7 +8,13 @@ RUN bun install --frozen-lockfile
 COPY src /app/src
 COPY tsconfig.json /app/tsconfig.json
 
-RUN bun build /app/src/index.ts --outfile /app/dist/cabinet --compile
+ARG TARGETARCH
+RUN case "$TARGETARCH" in \
+      "amd64") BUN_TARGET="bun-linux-x64-musl" ;; \
+      "arm64") BUN_TARGET="bun-linux-arm64-musl" ;; \
+      *) echo "Unsupported TARGETARCH: $TARGETARCH" && exit 1 ;; \
+    esac && \
+    bun build --compile --target="$BUN_TARGET" /app/src/index.ts --outfile /app/dist/cabinet
 
 FROM alpine:3.20
 
