@@ -1,0 +1,17 @@
+{
+  "name": "cabinet",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "cabinet": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run ./src/index.ts",
+    "build:darwin-x64": "bun build --compile --target=bun-darwin-x64 ./src/index.ts --outfile ./dist/cabinet-darwin-x64",
+    "build:linux-x64": "bun build --compile --target=bun-linux-x64 ./src/index.ts --outfile ./dist/cabinet-linux-x64",
+    "build:all": "bun run build:darwin-x64 && bun run build:linux-x64"
+  },
+  "dependencies": {
+    "serve-handler": "^6.1.6"
+  }
+}

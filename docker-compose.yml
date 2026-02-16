@@ -1,0 +1,8 @@
+services:
+  cabinet:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/data:ro
+    command: ["cabinet", "/data", "--listen", "0.0.0.0:3000"]
