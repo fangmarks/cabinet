@@ -20,7 +20,7 @@ FROM alpine:3.20
 
 WORKDIR /data
 
-RUN apk add --no-cache libstdc++ libgcc
+RUN apk add --no-cache libstdc++ libgcc git
 
 COPY --from=builder /app/dist/cabinet /usr/local/bin/cabinet
 

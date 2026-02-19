@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "cabinet": "./src/index.ts"
+    "cabinet": "./dist/cabinet"
   },
   "scripts": {
     "dev": "bun run ./src/index.ts",
